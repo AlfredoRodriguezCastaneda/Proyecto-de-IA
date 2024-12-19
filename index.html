@@ -2,10 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resumen AI</title>
+    <title>Resumen de Documentos con IA</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -49,6 +50,16 @@
             word-wrap: break-word; /* Ajusta las palabras largas */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        .dashboard {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-left: 5px solid #004d99;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -58,6 +69,10 @@
     <pre id="fileContent"></pre>
     <h2>Resumen:</h2>
     <div class="summary" id="summary"></div>
+    <h2>Dashboard de Palabras Clave</h2>
+    <div class="dashboard">
+        <canvas id="keywordChart"></canvas>
+    </div>
 
     <script>
         async function loadModel() {
@@ -108,6 +123,42 @@
             return summary;
         }
 
+        function generateKeywordStats(text) {
+            const words = text.toLowerCase().match(/\b(\w+)\b/g);
+            const wordCount = {};
+            words.forEach(word => {
+                if (!wordCount[word]) {
+                    wordCount[word] = 0;
+                }
+                wordCount[word]++;
+            });
+            return wordCount;
+        }
+
+        function createChart(data) {
+            const ctx = document.getElementById('keywordChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        label: 'Frecuencia de Palabras',
+                        data: Object.values(data),
+                        backgroundColor: 'rgba(0, 77, 153, 0.5)',
+                        borderColor: 'rgba(0, 77, 153, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
         async function processFile() {
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
@@ -130,6 +181,9 @@
 
             const summary = await summarizeText(text);
             document.getElementById('summary').textContent = summary;
+
+            const keywordStats = generateKeywordStats(text);
+            createChart(keywordStats);
         }
     </script>
 </body>
