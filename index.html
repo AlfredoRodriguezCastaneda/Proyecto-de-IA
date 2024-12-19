@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ANÁLISIS DE DOCUMENTOS</title>
+    <title>Re IA</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -69,7 +69,7 @@
     </style>
 </head>
 <body>
-    <h1>MODELOS DE LENGUAJE PARA OPTIMIZAR EL ANÁLISIS DE DOCUMENTOS</h1>
+    <h1>Resumen de Documentos con IA</h1>
     <input type="file" id="fileInput" accept=".txt,.pdf" />
     <button onclick="processFile()">Procesar Documento</button>
     <pre id="fileContent"></pre>
@@ -77,17 +77,15 @@
     <div class="summary" id="summary"></div>
     <h2>Dashboard</h2>
     <div class="dashboard">
-        <div class="chart-container">
             <canvas id="wordFrequencyChart"></canvas>
-        </div>
         <div class="chart-container">
             <canvas id="wordCountChart"></canvas>
         </div>
         <div class="chart-container">
-            <canvas id="sentenceCountLineChart"></canvas>
+            <canvas id="sentenceCountChart"></canvas>
         </div>
         <div class="chart-container">
-            <canvas id="paragraphCountPieChart"></canvas>
+            <canvas id="paragraphCountChart"></canvas>
         </div>
         <div class="chart-container">
             <canvas id="averageSentenceLengthChart"></canvas>
@@ -179,49 +177,6 @@
             });
         }
 
-        function createLineChart(ctx, labels, data, label) {
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        label,
-                        data,
-                        backgroundColor: 'rgba(0, 77, 153, 0.5)',
-                        borderColor: 'rgba(0, 77, 153, 1)',
-                        borderWidth: 1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-
-        function createPieChart(ctx, labels, data, label) {
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels,
-                    datasets: [{
-                        label,
-                        data,
-                        backgroundColor: ['rgba(0, 77, 153, 0.5)', 'rgba(0, 77, 153, 0.7)', 'rgba(0, 77, 153, 0.9)'],
-                        borderColor: 'rgba(0, 77, 153, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
-        }
-
         async function processFile() {
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
@@ -241,11 +196,10 @@
 
             createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), Object.keys(stats.wordCounts), Object.values(stats.wordCounts), 'Frecuencia de Palabras');
             createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
-            createLineChart(document.getElementById('sentenceCountLineChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
-            createPieChart(document.getElementById('paragraphCountPieChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
+            createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
+            createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
             createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
         }
     </script>
 </body>
 </html>
-
