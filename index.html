@@ -2,39 +2,62 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido a nuestro proyecto de IA</title>
-    <link rel="stylesheet" href="styles.css"> </head>
+    <title>Lectura y Resumen de Documentos con IA</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
+</head>
 <body>
-    <header>
-        <h1>Bienvenido al mundo de la Inteligencia Artificial</h1>
-    </header>
+    <h1>Lectura y Resumen de Documentos con IA</h1>
+    <input type="file" id="fileInput" />
+    <button onclick="processFile()">Procesar Documento</button>
+    <pre id="fileContent"></pre>
+    <h2>Resumen:</h2>
+    <p id="summary"></p>
 
-    <main>
-        <section>
-            <h2>¿Qué es este proyecto?</h2>
-            <p>Este proyecto tiene como objetivo [Describir brevemente el objetivo principal del proyecto]. Utilizaremos las últimas tecnologías en inteligencia artificial para [Enumerar los objetivos específicos].</p>
-        </section>
+    <script>
+        async function loadModel() {
+            const model = await use.load();
+            return model;
+        }
 
-        <section>
-            <h2>¿Por qué es importante?</h2>
-            <p>La inteligencia artificial está revolucionando el mundo y este proyecto busca [Explicar las implicaciones y beneficios del proyecto].</p>
-        </section>
+        function readFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => resolve(event.target.result);
+                reader.onerror = (error) => reject(error);
+                reader.readAsText(file);
+            });
+        }
 
-        <section>
-            <h2>¿Cómo funciona?</h2>
-            <p>En términos generales, este proyecto utiliza [Describir las técnicas y algoritmos de IA utilizados]. Pero no te preocupes si no eres un experto en la materia, ¡estaremos aquí para explicarlo todo!</p>
-        </section>
+        async function summarizeText(text) {
+            const model = await loadModel();
+            const sentences = text.split('. ').filter(s => s.length > 0);
+            const embeddings = await model.embed(sentences);
+            const scores = embeddings.mean(1).arraySync();
+            const sortedSentences = sentences
+                .map((sentence, index) => ({ sentence, score: scores[index] }))
+                .sort((a, b) => b.score - a.score)
+                .map(item => item.sentence);
 
-        <section>
-            <h2>Únete a nosotros</h2>
-            <p>Si estás interesado en aprender más o colaborar en este proyecto, no dudes en [Indicar las formas de contacto: formulario, correo electrónico, redes sociales].</p>
-        </section>
-    </main>
+            const summary = sortedSentences.slice(0, Math.min(3, sortedSentences.length)).join('. ');
+            return summary;
+        }
 
-    <footer>
-        <p>&copy; [Tu nombre o el nombre del equipo] - [Año]</p>
-    </footer>
-
-    <script src="script.js"></script> </body>
+        async function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Por favor, selecciona un archivo primero.');
+                return;
+            }
+            
+            const text = await readFile(file);
+            document.getElementById('fileContent').textContent = text;
+            
+            const summary = await summarizeText(text);
+            document.getElementById('summary').textContent = summary;
+        }
+    </script>
+</body>
 </html>
+
