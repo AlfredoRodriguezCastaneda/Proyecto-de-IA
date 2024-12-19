@@ -41,7 +41,7 @@
             border-radius: 4px;
             margin-right: 10px;
         }
-        pre, .summary, .suggestions, .dashboard, .statistics {
+        pre, .summary, .dashboard, .statistics {
             background-color: #fff;
             border-left: 5px solid #004d99;
             padding: 15px;
@@ -77,9 +77,8 @@
     <div class="statistics">
         <canvas id="wordCountChart"></canvas>
         <canvas id="sentenceLengthChart"></canvas>
+        <canvas id="pieChart"></canvas>
     </div>
-    <h2>Sugerencias</h2>
-    <div class="suggestions" id="suggestions"></div>
 
     <footer>
         Autor: Alfredo Rodríguez Castañeda
@@ -160,7 +159,7 @@
             return wordCount;
         }
 
-        function createChart(ctx, labels, data, label) {
+        function createBarChart(ctx, labels, data, label) {
             new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -183,21 +182,30 @@
             });
         }
 
-        function generateSuggestions(text) {
-            const suggestions = [];
-            if (text.includes("mejora")) {
-                suggestions.push("Considera implementar un plan de mejora continua.");
-            }
-            if (text.includes("eficiencia")) {
-                suggestions.push("Revisa los procesos para identificar áreas de mejora en eficiencia.");
-            }
-            if (text.includes("estrategia")) {
-                suggestions.push("Evalúa la estrategia actual para asegurarte de que está alineada con los objetivos.");
-            }
-            if (suggestions.length === 0) {
-                suggestions.push("No se encontraron sugerencias específicas. Continúa monitoreando y ajustando según sea necesario.");
-            }
-            return suggestions;
+        function createPieChart(ctx, labels, data) {
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 206, 86, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
         }
 
         async function processFile() {
@@ -224,14 +232,12 @@
             document.getElementById('summary').textContent = summary;
 
             const keywordStats = generateKeywordStats(text);
-            createChart(document.getElementById('keywordChart').getContext('2d'), Object.keys(keywordStats), Object.values(keywordStats), 'Frecuencia de Palabras');
+            createBarChart(document.getElementById('keywordChart').getContext('2d'), Object.keys(keywordStats), Object.values(keywordStats), 'Frecuencia de Palabras');
 
             const stats = generateStatistics(text);
-            createChart(document.getElementById('wordCountChart').getContext('2d'), ['Palabras', 'Oraciones', 'Párrafos'], [stats.wordCount, stats.sentenceCount, stats.paragraphCount], 'Estadísticas del Documento');
-            createChart(document.getElementById('sentenceLengthChart').getContext('2d'), ['Longitud Promedio de Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de Oraciones');
-
-            const suggestions = generateSuggestions(text);
-            document.getElementById('suggestions').innerHTML = suggestions.map(s => `<p>${s}</p>`).join('');
+            createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Palabras', 'Oraciones', 'Párrafos'], [stats.wordCount, stats.sentenceCount, stats.paragraphCount], 'Estadísticas del Documento');
+            createBarChart(document.getElementById('sentenceLengthChart').getContext('2d'), ['Longitud Promedio de Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de Oraciones');
+            createPieChart(document.getElementById('pieChart').getContext('2d'), ['Palabras', 'Oraciones', 'Párrafos'], [stats.wordCount, stats.sentenceCount, stats.paragraphCount]);
         }
     </script>
 </body>
