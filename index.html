@@ -9,197 +9,181 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #004d99;
-        }
-        h1 {
-            border-bottom: 2px solid #004d99;
-            padding-bottom: 10px;
-        }
-        button {
-            background-color: #004d99;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #003366;
-        }
-        input[type="file"] {
-            padding: 10px;
-            background-color: #fff;
-            border: 2px solid #004d99;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-        pre, .summary, .dashboard {
-            background-color: #fff;
-            border-left: 5px solid #004d99;
-            padding: 15px;
-            margin-top: 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .chart-container {
-            flex: 1;
-            min-width: 300px; /* ajusta este valor según tus necesidades */
-        }
-        footer {
-            margin-top: 40px;
-            padding: 10px;
-            background-color: #004d99;
-            color: #fff;
-            text-align: center;
-        }
+       body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+h1, h2 {
+    color: #004d99;
+}
+h1 {
+    border-bottom: 2px solid #004d99;
+    padding-bottom: 10px;
+}
+button {
+    background-color: #004d99;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #003366;
+}
+input[type="file"] {
+    padding: 10px;
+    background-color: #fff;
+    border: 2px solid #004d99;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+pre, .summary, .dashboard {
+    background-color: #fff;
+    border-left: 5px solid #004d99;
+    padding: 15px;
+    margin-top: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.chart-container {
+    flex: 1;
+    min-width: 300px;
+}
+footer {
+    margin-top: 40px;
+    padding: 10px;
+    background-color: #004d99;
+    color: #fff;
+    text-align: center;
+}
+
     </style>
 </head>
 <body>
-    <h1>ANÁLISIS DE DOCUMENTOS.</h1>
-    <input type="file" id="fileInput" accept=".txt,.pdf" />
-    <button onclick="processFile()">Procesar Documento</button>
-    <pre id="fileContent"></pre>
-    <h2>Reseña clave:</h2>
-    <div class="summary" id="summary"></div>
-    <h2>Dashboard</h2>
-    <div class="dashboard">
-            <canvas id="wordFrequencyChart"></canvas>
-        <div class="chart-container">
-            <canvas id="wordCountChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <canvas id="sentenceCountChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <canvas id="paragraphCountChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <canvas id="averageSentenceLengthChart"></canvas>
-        </div>
-    </div>
-
-    <footer>
-        Autor: Alfredo Rodríguez Castañeda
-    </footer>
+    <h1>ANÁLISIS DE DOCUMENTOS.</h1> <input type="file" id="fileInput" accept=".txt,.pdf" /> <button onclick="processFile()">Procesar Documento</button> <pre id="fileContent"></pre> <h2>Reseña clave:</h2> <div class="summary" id="summary"></div> <h2>Dashboard</h2> <div class="dashboard"> <div class="chart-container"> <canvas id="wordFrequencyChart"></canvas> </div> <div class="chart-container"> <canvas id="wordCountChart"></canvas> </div> <div class="chart-container"> <canvas id="sentenceCountChart"></canvas> </div> <div class="chart-container"> <canvas id="paragraphCountChart"></canvas> </div> <div class="chart-container"> <canvas id="averageSentenceLengthChart"></canvas> </div> <div class="chart-container"> <canvas id="wordLengthDistributionChart"></canvas> </div> <div class="chart-container"> <canvas id="paragraphFrequencyChart"></canvas> </div> </div> <footer> Autor: Alfredo Rodríguez Castañeda</footer>
 
     <script>
-        async function loadModel() {
-            console.log("Cargando el modelo...");
-            return await use.load();
-        }
+async function loadModel() {
+    console.log("Cargando el modelo...");
+    return await use.load();
+}
 
-        async function readPDF(file) {
-            const reader = new FileReader();
-            reader.readAsArrayBuffer(file);
-            return new Promise((resolve, reject) => {
-                reader.onload = async () => {
-                    const pdf = await pdfjsLib.getDocument({data: reader.result}).promise;
-                    const text = (await Promise.all(
-                        Array.from({ length: pdf.numPages }, (_, i) => pdf.getPage(i + 1).then(page => page.getTextContent()))
-                    )).map(textContent => textContent.items.map(item => item.str).join(" ")).join(" ");
-                    resolve(text);
-                };
-                reader.onerror = reject;
-            });
-        }
+async function readPDF(file) {
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+    return new Promise((resolve, reject) => {
+        reader.onload = async () => {
+            const pdf = await pdfjsLib.getDocument({data: reader.result}).promise;
+            const text = (await Promise.all(
+                Array.from({ length: pdf.numPages }, (_, i) => pdf.getPage(i + 1).then(page => page.getTextContent()))
+            )).map(textContent => textContent.items.map(item => item.str).join(" ")).join(" ");
+            resolve(text);
+        };
+        reader.onerror = reject;
+    });
+}
 
-        async function readFile(file) {
-            const reader = new FileReader();
-            reader.readAsText(file);
-            return new Promise((resolve, reject) => {
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-            });
-        }
+async function readFile(file) {
+    const reader = new FileReader();
+    reader.readAsText(file);
+    return new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+    });
+}
 
-        async function summarizeText(text) {
-            const model = await loadModel();
-            const sentences = text.split('. ').filter(Boolean);
-            const embeddings = await model.embed(sentences);
-            const scores = embeddings.mean(1).arraySync();
-            return sentences
-                .map((sentence, index) => ({ sentence, score: scores[index] }))
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 3)
-                .map(item => item.sentence)
-                .join('. ');
-        }
+async function summarizeText(text) {
+    const model = await loadModel();
+    const sentences = text.split('. ').filter(Boolean);
+    const embeddings = await model.embed(sentences);
+    const scores = embeddings.mean(1).arraySync();
+    return sentences
+        .map((sentence, index) => ({ sentence, score: scores[index] }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map(item => item.sentence)
+        .join('. ');
+}
 
-        function generateStatistics(text) {
-            const sentences = text.split('. ');
-            const wordCounts = text.split(/\s+/).reduce((counts, word) => {
-                counts[word] = (counts[word] || 0) + 1;
-                return counts;
-            }, {});
-            return {
-                wordCount: text.split(/\s+/).length,
-                sentenceCount: sentences.length,
-                paragraphCount: text.split(/\n+/).length,
-                averageSentenceLength: sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) / sentences.length,
-                wordCounts
-            };
-        }
+function generateStatistics(text) {
+    const sentences = text.split('. ');
+    const words = text.split(/\s+/);
+    const wordCounts = words.reduce((counts, word) => {
+        counts[word] = (counts[word] || 0) + 1;
+        return counts;
+    }, {});
+    const wordLengths = words.map(word => word.length);
+    const paragraphCounts = text.split(/\n+/).map(paragraph => paragraph.split(/\s+/).length);
+    return {
+        wordCount: words.length,
+        sentenceCount: sentences.length,
+        paragraphCount: text.split(/\n+/).length,
+        averageSentenceLength: sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) / sentences.length,
+        wordCounts,
+        wordLengths,
+        paragraphCounts
+    };
+}
 
-        function createBarChart(ctx, labels, data, label) {
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{
-                        label,
-                        data,
-                        backgroundColor: 'rgba(0, 77, 153, 0.5)',
-                        borderColor: 'rgba(0, 77, 153, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+function createBarChart(ctx, labels, data, label) {
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label,
+                data,
+                backgroundColor: 'rgba(0, 77, 153, 0.5)',
+                borderColor: 'rgba(0, 77, 153, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-            });
-        }
-
-        async function processFile() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('Por favor, selecciona un archivo primero.');
-                return;
             }
-
-            const text = file.type === "application/pdf" ? await readPDF(file) : await readFile(file);
-
-            document.getElementById('fileContent').textContent = text;
-
-            const summary = await summarizeText(text);
-            document.getElementById('summary').textContent = summary;
-
-            const stats = generateStatistics(text);
-
-            createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), Object.keys(stats.wordCounts), Object.values(stats.wordCounts), 'Frecuencia de Palabras');
-            createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
-            createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
-            createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
-            createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
         }
+    });
+}
+
+async function processFile() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert('Por favor, selecciona un archivo primero.');
+        return;
+    }
+
+    const text = file.type === "application/pdf" ? await readPDF(file) : await readFile(file);
+
+    document.getElementById('fileContent').textContent = text;
+
+    const summary = await summarizeText(text);
+    document.getElementById('summary').textContent = summary;
+
+    const stats = generateStatistics(text);
+
+    createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), Object.keys(stats.wordCounts), Object.values(stats.wordCounts), 'Frecuencia de Palabras');
+    createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
+    createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
+    createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
+    createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
+    createBarChart(document.getElementById('wordLengthDistributionChart').getContext('2d'), stats.wordLengths, new Array(stats.wordLengths.length).fill(1), 'Distribución de la Longitud de Palabras');
+    createBarChart(document.getElementById('paragraphFrequencyChart').getContext('2d'), stats.paragraphCounts, new Array(stats.paragraphCounts.length).fill(1), 'Frecuencia de Párrafos');
+}
+
     </script>
 </body>
 </html>
