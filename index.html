@@ -41,7 +41,7 @@
             border-radius: 4px;
             margin-right: 10px;
         }
-        pre, .summary, .suggestions, .dashboard {
+        pre, .summary, .suggestions, .dashboard, .statistics {
             background-color: #fff;
             border-left: 5px solid #004d99;
             padding: 15px;
@@ -72,6 +72,11 @@
     <h2>Dashboard de Palabras Clave</h2>
     <div class="dashboard">
         <canvas id="keywordChart"></canvas>
+    </div>
+    <h2>Estadísticas del Documento</h2>
+    <div class="statistics">
+        <canvas id="wordCountChart"></canvas>
+        <canvas id="sentenceLengthChart"></canvas>
     </div>
     <h2>Sugerencias</h2>
     <div class="suggestions" id="suggestions"></div>
@@ -129,6 +134,20 @@
             return summary;
         }
 
+        function generateStatistics(text) {
+            const wordCount = text.split(/\s+/).length;
+            const sentenceCount = text.split('. ').length;
+            const paragraphCount = text.split(/\n+/).length;
+            const sentenceLengths = text.split('. ').map(sentence => sentence.split(/\s+/).length);
+            const averageSentenceLength = sentenceLengths.reduce((a, b) => a + b, 0) / sentenceLengths.length;
+            return {
+                wordCount,
+                sentenceCount,
+                paragraphCount,
+                averageSentenceLength
+            };
+        }
+
         function generateKeywordStats(text) {
             const words = text.toLowerCase().match(/\b(\w+)\b/g);
             const wordCount = {};
@@ -141,15 +160,14 @@
             return wordCount;
         }
 
-        function createChart(data) {
-            const ctx = document.getElementById('keywordChart').getContext('2d');
+        function createChart(ctx, labels, data, label) {
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(data),
+                    labels,
                     datasets: [{
-                        label: 'Frecuencia de Palabras',
-                        data: Object.values(data),
+                        label,
+                        data,
                         backgroundColor: 'rgba(0, 77, 153, 0.5)',
                         borderColor: 'rgba(0, 77, 153, 1)',
                         borderWidth: 1
@@ -206,7 +224,11 @@
             document.getElementById('summary').textContent = summary;
 
             const keywordStats = generateKeywordStats(text);
-            createChart(keywordStats);
+            createChart(document.getElementById('keywordChart').getContext('2d'), Object.keys(keywordStats), Object.values(keywordStats), 'Frecuencia de Palabras');
+
+            const stats = generateStatistics(text);
+            createChart(document.getElementById('wordCountChart').getContext('2d'), ['Palabras', 'Oraciones', 'Párrafos'], [stats.wordCount, stats.sentenceCount, stats.paragraphCount], 'Estadísticas del Documento');
+            createChart(document.getElementById('sentenceLengthChart').getContext('2d'), ['Longitud Promedio de Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de Oraciones');
 
             const suggestions = generateSuggestions(text);
             document.getElementById('suggestions').innerHTML = suggestions.map(s => `<p>${s}</p>`).join('');
