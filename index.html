@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resumen de DocumentoA</title>
+    <title>Resumen de Documentos con IA</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -41,20 +41,13 @@
             border-radius: 4px;
             margin-right: 10px;
         }
-        pre, .summary {
+        pre, .summary, .suggestions, .dashboard {
             background-color: #fff;
             border-left: 5px solid #004d99;
             padding: 15px;
             margin-top: 20px;
-            white-space: pre-wrap; /* Importante para manejar los saltos de línea */
-            word-wrap: break-word; /* Ajusta las palabras largas */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .dashboard {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #fff;
-            border-left: 5px solid #004d99;
+            white-space: pre-wrap;
+            word-wrap: break-word;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         canvas {
@@ -73,6 +66,8 @@
     <div class="dashboard">
         <canvas id="keywordChart"></canvas>
     </div>
+    <h2>Sugerencias</h2>
+    <div class="suggestions" id="suggestions"></div>
 
     <script>
         async function loadModel() {
@@ -159,6 +154,24 @@
             });
         }
 
+        function generateSuggestions(text) {
+            // Esta función puede ser personalizada según el contexto del documento
+            const suggestions = [];
+            if (text.includes("mejora")) {
+                suggestions.push("Considera implementar un plan de mejora continua.");
+            }
+            if (text.includes("eficiencia")) {
+                suggestions.push("Revisa los procesos para identificar áreas de mejora en eficiencia.");
+            }
+            if (text.includes("estrategia")) {
+                suggestions.push("Evalúa la estrategia actual para asegurarte de que está alineada con los objetivos.");
+            }
+            if (suggestions.length === 0) {
+                suggestions.push("No se encontraron sugerencias específicas. Continúa monitoreando y ajustando según sea necesario.");
+            }
+            return suggestions;
+        }
+
         async function processFile() {
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
@@ -184,6 +197,9 @@
 
             const keywordStats = generateKeywordStats(text);
             createChart(keywordStats);
+
+            const suggestions = generateSuggestions(text);
+            document.getElementById('suggestions').innerHTML = suggestions.map(s => `<p>${s}</p>`).join('');
         }
     </script>
 </body>
