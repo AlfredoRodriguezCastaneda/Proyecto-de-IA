@@ -53,6 +53,13 @@
         canvas {
             margin-top: 20px;
         }
+        footer {
+            margin-top: 40px;
+            padding: 10px;
+            background-color: #004d99;
+            color: #fff;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -68,6 +75,10 @@
     </div>
     <h2>Sugerencias</h2>
     <div class="suggestions" id="suggestions"></div>
+
+    <footer>
+        Autor: Alfredo Rodríguez Castañeda
+    </footer>
 
     <script>
         async function loadModel() {
@@ -155,7 +166,6 @@
         }
 
         function generateSuggestions(text) {
-            // Esta función puede ser personalizada según el contexto del documento
             const suggestions = [];
             if (text.includes("mejora")) {
                 suggestions.push("Considera implementar un plan de mejora continua.");
