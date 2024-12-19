@@ -185,8 +185,8 @@
 
             const stats = generateStatistics(text);
 
-            createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
             createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), Object.keys(stats.wordCounts), Object.values(stats.wordCounts), 'Frecuencia de Palabras');
+            createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
             createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
             createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
             createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
