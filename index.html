@@ -6,21 +6,48 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
         }
         h1, h2 {
-            color: #333;
+            color: #004d99;
+        }
+        h1 {
+            border-bottom: 2px solid #004d99;
+            padding-bottom: 10px;
+        }
+        button {
+            background-color: #004d99;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #003366;
+        }
+        input[type="file"] {
+            padding: 10px;
+            background-color: #fff;
+            border: 2px solid #004d99;
+            border-radius: 4px;
+            margin-right: 10px;
         }
         pre, .summary {
-            background-color: #f9f9f9;
-            border-left: 5px solid #ccc;
+            background-color: #fff;
+            border-left: 5px solid #004d99;
             padding: 15px;
             margin-top: 20px;
             white-space: pre-wrap; /* Importante para manejar los saltos de línea */
             word-wrap: break-word; /* Ajusta las palabras largas */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
