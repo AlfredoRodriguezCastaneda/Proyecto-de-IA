@@ -5,6 +5,26 @@
     <title>Lectura y Resumen de Documentos con IA</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        .summary {
+            background-color: #f9f9f9;
+            border-left: 5px solid #ccc;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>Lectura y Resumen de Documentos con IA</h1>
@@ -12,7 +32,7 @@
     <button onclick="processFile()">Procesar Documento</button>
     <pre id="fileContent"></pre>
     <h2>Resumen:</h2>
-    <p id="summary"></p>
+    <div class="summary" id="summary"></div>
 
     <script>
         async function loadModel() {
@@ -20,12 +40,21 @@
             return model;
         }
 
-        function readFile(file) {
+        async function readPDF(file) {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (event) => resolve(event.target.result);
+                reader.onload = async () => {
+                    const pdf = await pdfjsLib.getDocument({data: reader.result}).promise;
+                    let text = "";
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        text += textContent.items.map(item => item.str).join(" ");
+                    }
+                    resolve(text);
+                };
                 reader.onerror = (error) => reject(error);
-                reader.readAsText(file);
             });
         }
 
@@ -50,10 +79,10 @@
                 alert('Por favor, selecciona un archivo primero.');
                 return;
             }
-            
-            const text = await readFile(file);
+
+            const text = await readPDF(file);
             document.getElementById('fileContent').textContent = text;
-            
+
             const summary = await summarizeText(text);
             document.getElementById('summary').textContent = summary;
         }
