@@ -76,7 +76,7 @@
     <div class="summary" id="summary"></div>
     <h2>Dashboard</h2>
     <div class="dashboard">
-        <canvas id="keywordChart"></canvas>
+        <canvas id="wordFrequencyChart"></canvas>
         <canvas id="wordCountChart"></canvas>
         <canvas id="sentenceCountChart"></canvas>
         <canvas id="paragraphCountChart"></canvas>
@@ -186,7 +186,9 @@
 
             const stats = generateStatistics(text);
 
-            createBarChart(document.getElementById('keywordChart').getContext('2d'), stats.sortedWordCounts.map(([word]) => word), stats.sortedWordCounts.map(([, count]) => count), 'Palabras Clave');
+            const wordFrequencyLabels = stats.sortedWordCounts.map(([word]) => word);
+            const wordFrequencyData = stats.sortedWordCounts.map(([, count]) => count);
+            createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), wordFrequencyLabels, wordFrequencyData, 'Frecuencia de Palabras');
             createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
             createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
             createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
