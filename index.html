@@ -77,10 +77,10 @@
     <h2>Dashboard</h2>
     <div class="dashboard">
         <canvas id="wordCountChart"></canvas>
+        <canvas id="wordFrequencyChart"></canvas>
         <canvas id="sentenceCountChart"></canvas>
         <canvas id="paragraphCountChart"></canvas>
         <canvas id="averageSentenceLengthChart"></canvas>
-        <canvas id="wordFrequencyChart"></canvas>
     </div>
 
     <footer>
@@ -186,14 +186,10 @@
             const stats = generateStatistics(text);
 
             createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
+            createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), Object.keys(stats.wordCounts), Object.values(stats.wordCounts), 'Frecuencia de Palabras');
             createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
             createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
             createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
-
-            const sortedWordCounts = Object.entries(stats.wordCounts).sort((a, b) => b[1] - a[1]);
-            const wordFrequencyLabels = sortedWordCounts.map(([word]) => word).slice(0, 10);
-            const wordFrequencyData = sortedWordCounts.map(([, count]) => count).slice(0, 10);
-            createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), wordFrequencyLabels, wordFrequencyData, 'Frecuencia de Palabras');
         }
     </script>
 </body>
