@@ -51,13 +51,12 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
         }
         .dashboard canvas {
-            flex: 1 1 300px;
-            margin: 20px;
+            max-height: 300px;
         }
         footer {
             margin-top: 40px;
@@ -73,9 +72,7 @@
     <input type="file" id="fileInput" accept=".txt,.pdf" />
     <button onclick="processFile()">Procesar Documento</button>
     <pre id="fileContent"></pre>
-    <h2>Resumen:</h2>
-    <div class="summary" id="summary"></div>
-    <h2>Dashboard y Estadísticas del Documento</h2>
+    <h2>Dashboard</h2>
     <div class="dashboard">
         <canvas id="keywordChart"></canvas>
         <canvas id="wordCountChart"></canvas>
