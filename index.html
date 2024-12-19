@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Documentos! </title>
+    <title>Resumen de Documentos con IA</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -76,8 +76,8 @@
     <div class="summary" id="summary"></div>
     <h2>Dashboard</h2>
     <div class="dashboard">
-        <canvas id="wordFrequencyChart"></canvas>
         <canvas id="wordCountChart"></canvas>
+        <canvas id="wordFrequencyChart"></canvas>
         <canvas id="sentenceCountChart"></canvas>
         <canvas id="paragraphCountChart"></canvas>
         <canvas id="averageSentenceLengthChart"></canvas>
@@ -136,13 +136,12 @@
                 counts[word] = (counts[word] || 0) + 1;
                 return counts;
             }, {});
-            const sortedWordCounts = Object.entries(wordCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
             return {
                 wordCount: text.split(/\s+/).length,
                 sentenceCount: sentences.length,
                 paragraphCount: text.split(/\n+/).length,
                 averageSentenceLength: sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) / sentences.length,
-                sortedWordCounts
+                wordCounts
             };
         }
 
@@ -186,10 +185,8 @@
 
             const stats = generateStatistics(text);
 
-            const wordFrequencyLabels = stats.sortedWordCounts.map(([word]) => word);
-            const wordFrequencyData = stats.sortedWordCounts.map(([, count]) => count);
-            createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), wordFrequencyLabels, wordFrequencyData, 'Frecuencia de Palabras');
             createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
+            createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), Object.keys(stats.wordCounts), Object.values(stats.wordCounts), 'Frecuencia de Palabras');
             createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
             createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
             createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
@@ -197,3 +194,4 @@
     </script>
 </body>
 </html>
+
