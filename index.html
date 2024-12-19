@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>gjrrjResumen !</title>
+    <title>Resumen de Documentos con IA</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -80,6 +80,7 @@
         <canvas id="sentenceCountChart"></canvas>
         <canvas id="paragraphCountChart"></canvas>
         <canvas id="averageSentenceLengthChart"></canvas>
+        <canvas id="wordFrequencyChart"></canvas>
     </div>
 
     <footer>
@@ -131,11 +132,16 @@
 
         function generateStatistics(text) {
             const sentences = text.split('. ');
+            const wordCounts = text.split(/\s+/).reduce((counts, word) => {
+                counts[word] = (counts[word] || 0) + 1;
+                return counts;
+            }, {});
             return {
                 wordCount: text.split(/\s+/).length,
                 sentenceCount: sentences.length,
                 paragraphCount: text.split(/\n+/).length,
                 averageSentenceLength: sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) / sentences.length,
+                wordCounts
             };
         }
 
@@ -183,6 +189,11 @@
             createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
             createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
             createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
+
+            const sortedWordCounts = Object.entries(stats.wordCounts).sort((a, b) => b[1] - a[1]);
+            const wordFrequencyLabels = sortedWordCounts.map(([word]) => word).slice(0, 10);
+            const wordFrequencyData = sortedWordCounts.map(([, count]) => count).slice(0, 10);
+            createBarChart(document.getElementById('wordFrequencyChart').getContext('2d'), wordFrequencyLabels, wordFrequencyData, 'Frecuencia de Palabras');
         }
     </script>
 </body>
