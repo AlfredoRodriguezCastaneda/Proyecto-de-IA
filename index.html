@@ -14,21 +14,18 @@
         h1, h2 {
             color: #333;
         }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-        .summary {
+        pre, .summary {
             background-color: #f9f9f9;
             border-left: 5px solid #ccc;
             padding: 15px;
             margin-top: 20px;
+            white-space: pre-wrap; /* Importante para manejar los saltos de línea */
+            word-wrap: break-word; /* Ajusta las palabras largas */
         }
     </style>
 </head>
 <body>
-    <h1>MODELOS DE LENGUAJE PARA OPTIMIZAR INFORMES </h1>
+    <h1>Resumen de Documentos con IA</h1>
     <input type="file" id="fileInput" accept=".txt,.pdf" />
     <button onclick="processFile()">Procesar Documento</button>
     <pre id="fileContent"></pre>
