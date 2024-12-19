@@ -89,9 +89,7 @@
     <script>
         async function loadModel() {
             console.log("Cargando el modelo...");
-            const model = await use.load();
-            console.log("Modelo cargado exitosamente.");
-            return model;
+            return await use.load();
         }
 
         async function readPDF(file) {
@@ -99,20 +97,13 @@
             reader.readAsArrayBuffer(file);
             return new Promise((resolve, reject) => {
                 reader.onload = async () => {
-                    console.log("Archivo PDF leído correctamente.");
                     const pdf = await pdfjsLib.getDocument({data: reader.result}).promise;
-                    let text = "";
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const textContent = await page.getTextContent();
-                        text += textContent.items.map(item => item.str).join(" ");
-                    }
+                    const text = (await Promise.all(
+                        Array.from({ length: pdf.numPages }, (_, i) => pdf.getPage(i + 1).then(page => page.getTextContent()))
+                    )).map(textContent => textContent.items.map(item => item.str).join(" ")).join(" ");
                     resolve(text);
                 };
-                reader.onerror = (error) => {
-                    console.error("Error al leer el archivo PDF:", error);
-                    reject(error);
-                };
+                reader.onerror = reject;
             });
         }
 
@@ -120,47 +111,35 @@
             const reader = new FileReader();
             reader.readAsText(file);
             return new Promise((resolve, reject) => {
-                reader.onload = () => {
-                    console.log("Archivo de texto leído correctamente.");
-                    resolve(reader.result);
-                };
-                reader.onerror = (error) => {
-                    console.error("Error al leer el archivo de texto:", error);
-                    reject(error);
-                };
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
             });
         }
 
         async function summarizeText(text) {
             const model = await loadModel();
-            const sentences = text.split('. ').filter(s => s.length > 0);
+            const sentences = text.split('. ').filter(Boolean);
             const embeddings = await model.embed(sentences);
             const scores = embeddings.mean(1).arraySync();
-            const sortedSentences = sentences
+            return sentences
                 .map((sentence, index) => ({ sentence, score: scores[index] }))
                 .sort((a, b) => b.score - a.score)
-                .map(item => item.sentence);
-
-            const summary = sortedSentences.slice(0, Math.min(3, sortedSentences.length)).join('. ');
-            return summary;
+                .slice(0, 3)
+                .map(item => item.sentence)
+                .join('. ');
         }
 
         function generateStatistics(text) {
-            const wordCount = text.split(/\s+/).length;
-            const sentenceCount = text.split('. ').length;
-            const paragraphCount = text.split(/\n+/).length;
-            const sentenceLengths = text.split('. ').map(sentence => sentence.split(/\s+/).length);
-            const averageSentenceLength = sentenceLengths.reduce((a, b) => a + b, 0) / sentenceLengths.length;
+            const sentences = text.split('. ');
             return {
-                wordCount,
-                sentenceCount,
-                paragraphCount,
-                averageSentenceLength
+                wordCount: text.split(/\s+/).length,
+                sentenceCount: sentences.length,
+                paragraphCount: text.split(/\n+/).length,
+                averageSentenceLength: sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) / sentences.length,
             };
         }
 
         function createBarChart(ctx, labels, data, label) {
-            console.log(`Generando gráfico de barras para ${label}`);
             new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -191,51 +170,20 @@
                 return;
             }
 
-            let text = "";
-            if (file.type === "application/pdf") {
-                text = await readPDF(file);
-            } else if (file.type === "text/plain") {
-                text = await readFile(file);
-            } else {
-                alert("Tipo de archivo no soportado. Por favor, sube un archivo PDF o de texto.");
-                return;
-            }
+            const text = file.type === "application/pdf" ? await readPDF(file) : await readFile(file);
 
-            console.log("Texto leído:", text);
-            const fileContentElement = document.getElementById('fileContent');
-            if (fileContentElement) {
-                fileContentElement.textContent = text;
-            } else {
-                console.error('Elemento con id "fileContent" no encontrado.');
-            }
+            document.getElementById('fileContent').textContent = text;
 
             const summary = await summarizeText(text);
-            const summaryElement = document.getElementById('summary');
-            if (summaryElement) {
-                summaryElement.textContent = summary;
-            } else {
-                console.error('Elemento con id "summary" no encontrado.');
-            }
-            console.log("Resumen generado:", summary);
+            document.getElementById('summary').textContent = summary;
 
             const stats = generateStatistics(text);
-            console.log("Estadísticas generadas:", stats);
 
-            const wordCountCtx = document.getElementById('wordCountChart').getContext('2d');
-            const sentenceCountCtx = document.getElementById('sentenceCountChart').getContext('2d');
-            const paragraphCountCtx = document.getElementById('paragraphCountChart').getContext('2d');
-            const averageSentenceLengthCtx = document.getElementById('averageSentenceLengthChart').getContext('2d');
-
-            if (wordCountCtx && sentenceCountCtx && paragraphCountCtx && averageSentenceLengthCtx) {
-                createBarChart(wordCountCtx, ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
-                createBarChart(sentenceCountCtx, ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
-                createBarChart(paragraphCountCtx, ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
-                createBarChart(averageSentenceLengthCtx, ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
-            } else {
-                console.error('Uno o más elementos de canvas no encontrados.');
-            }
+            createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
+            createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
+            createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
+            createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
         }
     </script>
 </body>
 </html>
-
