@@ -74,10 +74,10 @@
     <pre id="fileContent"></pre>
     <h2>Dashboard</h2>
     <div class="dashboard">
-        <canvas id="keywordChart"></canvas>
         <canvas id="wordCountChart"></canvas>
-        <canvas id="sentenceLengthChart"></canvas>
-        <canvas id="pieChart"></canvas>
+        <canvas id="sentenceCountChart"></canvas>
+        <canvas id="paragraphCountChart"></canvas>
+        <canvas id="averageSentenceLengthChart"></canvas>
     </div>
 
     <footer>
@@ -147,18 +147,6 @@
             };
         }
 
-        function generateKeywordStats(text) {
-            const words = text.toLowerCase().match(/\b(\w+)\b/g);
-            const wordCount = {};
-            words.forEach(word => {
-                if (!wordCount[word]) {
-                    wordCount[word] = 0;
-                }
-                wordCount[word]++;
-            });
-            return wordCount;
-        }
-
         function createBarChart(ctx, labels, data, label) {
             new Chart(ctx, {
                 type: 'bar',
@@ -178,32 +166,6 @@
                             beginAtZero: true
                         }
                     }
-                }
-            });
-        }
-
-        function createPieChart(ctx, labels, data) {
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels,
-                    datasets: [{
-                        data,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.5)',
-                            'rgba(54, 162, 235, 0.5)',
-                            'rgba(255, 206, 86, 0.5)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true
                 }
             });
         }
@@ -231,14 +193,13 @@
             const summary = await summarizeText(text);
             document.getElementById('summary').textContent = summary;
 
-            const keywordStats = generateKeywordStats(text);
-            createBarChart(document.getElementById('keywordChart').getContext('2d'), Object.keys(keywordStats), Object.values(keywordStats), 'Frecuencia de Palabras');
-
             const stats = generateStatistics(text);
-            createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Palabras', 'Oraciones', 'Párrafos'], [stats.wordCount, stats.sentenceCount, stats.paragraphCount], 'Estadísticas del Documento');
-            createBarChart(document.getElementById('sentenceLengthChart').getContext('2d'), ['Longitud Promedio de Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de Oraciones');
-            createPieChart(document.getElementById('pieChart').getContext('2d'), ['Palabras', 'Oraciones', 'Párrafos'], [stats.wordCount, stats.sentenceCount, stats.paragraphCount]);
+            createBarChart(document.getElementById('wordCountChart').getContext('2d'), ['Cantidad de Palabras'], [stats.wordCount], 'Cantidad de Palabras');
+            createBarChart(document.getElementById('sentenceCountChart').getContext('2d'), ['Cantidad de Oraciones'], [stats.sentenceCount], 'Cantidad de Oraciones');
+            createBarChart(document.getElementById('paragraphCountChart').getContext('2d'), ['Cantidad de Párrafos'], [stats.paragraphCount], 'Cantidad de Párrafos');
+            createBarChart(document.getElementById('averageSentenceLengthChart').getContext('2d'), ['Longitud Promedio de las Oraciones'], [stats.averageSentenceLength], 'Longitud Promedio de las Oraciones');
         }
     </script>
 </body>
 </html>
+
