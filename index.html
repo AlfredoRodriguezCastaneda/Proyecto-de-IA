@@ -52,11 +52,12 @@
         }
         .dashboard {
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 20px;
         }
-        .dashboard canvas {
-            max-height: 300px;
+        .chart-container {
+            flex: 1;
+            min-width: 300px; /* ajusta este valor según tus necesidades */
         }
         footer {
             margin-top: 40px;
@@ -76,11 +77,21 @@
     <div class="summary" id="summary"></div>
     <h2>Dashboard</h2>
     <div class="dashboard">
-        <canvas id="wordFrequencyChart"></canvas>
-        <canvas id="wordCountChart"></canvas>
-        <canvas id="sentenceCountChart"></canvas>
-        <canvas id="paragraphCountChart"></canvas>
-        <canvas id="averageSentenceLengthChart"></canvas>
+        <div class="chart-container">
+            <canvas id="wordFrequencyChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="wordCountChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="sentenceCountChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="paragraphCountChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="averageSentenceLengthChart"></canvas>
+        </div>
     </div>
 
     <footer>
@@ -194,4 +205,5 @@
     </script>
 </body>
 </html>
+
 
